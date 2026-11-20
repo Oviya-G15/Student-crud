@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Student CRUD</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+  <h1>Student Management</h1>
+
+  <div class="card">
+    <h2 id="formTitle">Add Student</h2>
+    <div id="error" class="error" style="display:none"></div>
+    <input type="hidden" id="id">
+    <input id="name" placeholder="Name">
+    <input id="email" placeholder="Email">
+    <input id="course" placeholder="Course">
+    <div class="row">
+      <button id="saveBtn" onclick="saveStudent()">Save</button>
+      <button class="gray" onclick="resetForm()">Clear</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Name</th><th>Email</th><th>Course</th><th>Actions</th></tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <p id="empty" class="muted" style="display:none">No students yet.</p>
+  </div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
