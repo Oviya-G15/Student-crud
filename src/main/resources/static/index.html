@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Student CRUD</title>
+<style>
+  body { font-family: Arial, sans-serif; max-width: 800px; margin: 30px auto; padding: 0 15px; background: #f5f6fa; }
+  h1 { text-align: center; }
+  .card { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.15); margin-bottom: 20px; }
+  input { padding: 8px; margin: 4px 4px 4px 0; border: 1px solid #ccc; border-radius: 4px; }
+  button { padding: 8px 14px; border: 0; border-radius: 4px; cursor: pointer; color: #fff; background: #2d7ff9; }
+  button.del { background: #e74c3c; } button.edit { background: #f39c12; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 8px; border-bottom: 1px solid #eee; }
+  #msg { color: #e74c3c; margin-top: 6px; }
+</style>
+</head>
+<body>
+<h1>Student CRUD</h1>
+<div class="card">
+  <input type="hidden" id="id">
+  <input id="name" placeholder="Name">
+  <input id="email" placeholder="Email">
+  <input id="course" placeholder="Course">
+  <button onclick="save()">Save</button>
+  <button onclick="resetForm()" style="background:#7f8c8d">Clear</button>
+  <div id="msg"></div>
+</div>
+<div class="card">
+  <table>
+    <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Course</th><th>Actions</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+</div>
+<script>
+const API = '/api/students';
+function esc(t) { const d = document.createElement('div'); d.textContent = t ?? ''; return d.innerHTML; }
+async function load() {
+  const res = await fetch(API);
+  const data = await res.json();
+  const tbody = document.getElementById('rows');
+  tbody.innerHTML = '';
+  data.forEach(s => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${s.id}</td><td>${esc(s.name)}</td><td>${esc(s.email)}</td><td>${esc(s.course)}</td><td></td>`;
+    const eb = document.createElement('button'); eb.className = 'edit'; eb.textContent = 'Edit'; eb.onclick = () => edit(s);
+    const db = document.createElement('button'); db.className = 'del'; db.textContent = 'Delete'; db.onclick = () => del(s.id);
+    tr.lastChild.append(eb, ' ', db);
+    tbody.appendChild(tr);
+  });
+}
+async function save() {
+  const id = document.getElementById('id').value;
+  const body = JSON.stringify({
+    name: document.getElementById('name').value,
+    email: document.getElementById('email').value,
+    course: document.getElementById('course').value
+  });
+  const res = await fetch(id ? `${API}/${id}` : API, {
+    method: id ? 'PUT' : 'POST',
+    headers: {'Content-Type': 'application/json'}, body
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    document.getElementById('msg').innerText = Object.values(err).join(', ');
+    return;
+  }
+  resetForm(); load();
+}
+function edit(s) {
+  document.getElementById('id').value = s.id;
+  document.getElementById('name').value = s.name;
+  document.getElementById('email').value = s.email;
+  document.getElementById('course').value = s.course ?? '';
+}
+async function del(id) {
+  if (!confirm('Delete this student?')) return;
+  await fetch(`${API}/${id}`, {method: 'DELETE'});
+  load();
+}
+function resetForm() {
+  ['id','name','email','course'].forEach(k => document.getElementById(k).value = '');
+  document.getElementById('msg').innerText = '';
+}
+load();
+</script>
+</body>
+</html>
